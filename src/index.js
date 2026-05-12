@@ -13,6 +13,7 @@ if (process.platform === 'win32') {
 }
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = Number(process.env.PORT) || 5000;
 const MONGODB_URI =
   process.env.MONGODB_URI || 'mongodb://localhost:27017/todo';
@@ -39,6 +40,41 @@ app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 
 app.get('/', (req, res) => {
+  if (req.accepts('html')) {
+    const base = `${req.protocol}://${req.get('host')}`;
+    res.type('html').send(`<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Todo API</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #111; }
+    code { background: #f4f4f5; padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.9em; }
+    a { color: #2563eb; }
+    .box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Todo 백엔드 API</h1>
+  <p>이 사이트는 <strong>API 서버</strong>입니다. JSON 메시지(연결됨)만 보이는 것이 정상이며, <strong>할일 화면(React)은 별도 앱</strong>입니다.</p>
+  <div class="box">
+    <p><strong>로컬에서 할일 UI 쓰기</strong></p>
+    <ol>
+      <li>프로젝트 <code>todo_react</code>에서 <code>npm run dev</code></li>
+      <li><code>.env</code>의 <code>VITE_API_BASE_URL</code>을 이 주소(<code>${base}</code>)로 설정</li>
+      <li>브라우저에서 Vite 주소(보통 <code>http://localhost:5173</code>)로 접속</li>
+    </ol>
+  </div>
+  <p><strong>API 링크</strong></p>
+  <ul>
+    <li><a href="${base}/health">/health</a></li>
+    <li><a href="${base}/api/todos">/api/todos</a></li>
+  </ul>
+</body>
+</html>`);
+    return;
+  }
   res.json({ message: 'Todo backend is running' });
 });
 
