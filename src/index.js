@@ -51,6 +51,8 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/todos', todosRouter);
+// 단수 경로 별칭 (기존 클라이언트·문서와 호환)
+app.use('/api/todo', todosRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
